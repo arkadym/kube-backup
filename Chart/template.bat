@@ -1,0 +1,1 @@
+helm template kube-backup -f kube-backup\values.yaml -n default > template.yaml

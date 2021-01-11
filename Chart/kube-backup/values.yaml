@@ -1,0 +1,94 @@
+## Default values for Kube-backup Helm Chart.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+nameOverride: "xxx"
+
+## Default values for Kube-backup
+##
+replicas: 1
+
+## Image configuration.
+##
+image:
+  repository: "arkadym/kube-backup"
+  tag: "1.22"
+#    pullPolicy: "Always"
+#    pullSecret: "secret-name"
+
+## Resource configuration.
+##
+resources: {}
+#  requests:
+#    memory: "256Mi"
+#    cpu: "300m"
+#  limits:
+#    memory: "512Mi"
+#    cpu: "500m"
+
+storage:
+  s3: {}
+#    accessKey: ""
+#    secretKey: ""
+#    bucketName: ""
+#    regionName: ""
+  azure: {}
+#    accountKey: ""
+#    accountName: ""
+#    containerName: ""
+#    prefix: ""
+  persistence: {}
+#    accessMode: "ReadWriteOnce"
+#    size: "10Gi"
+#    storageClass: "-"
+#    claimName: ""
+
+database:
+  mysql: {}
+#    server: ""
+#    databases: "" # space separated list of DBs to backup
+#    username: ""
+#    password: ""
+#    secret:
+#      name: ""
+#      userKey: ""
+#      passwordKey: ""
+
+folders: {}
+#  - name: etc-nginx
+#    path: /etc/nginx
+#    exclude: {}
+#      - some/relative/path1
+#      - some/relative/path2
+#    volume:
+#      persistentVolumeClaim:
+#        claimName: redmine-files
+#  - name: passbolt-config
+#    path: /var/www/passbolt/config
+#    exclude:
+#      - gpg
+#    volume:
+#      configMap:
+#        name: passbolt-online-tc-app-config
+#  - name: passbolt-gpg
+#    path: /var/www/passbolt/config/gpg
+#    volume:
+#      configMap:
+#        name: passbolt-online-tc-app-gpg
+
+config:
+  mode: backup # allowed values are: backup, sync
+  cronSchedule: "0 5 * * *" # every day 5am
+  backupDays: 5
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  backoffLimit: 0
+
+## persistence configuration.
+##
+persistence:
+  enabled: true
+  accessMode: "ReadWriteOnce"
+  size: "10Gi"
+#  storageClass: "-"
+#  existingClaim: "claim-name"

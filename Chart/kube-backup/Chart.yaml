@@ -1,0 +1,10 @@
+apiVersion: v1
+home: https://github.com/arkadym/kube-backup
+description: A Backup Helm chart for Kubernetes. Support backup mysql and folders
+name: kube-backup
+version: 1.4
+sources:
+  - https://github.com/arkadym/kube-backup/tree/master/Chart/kube-backup
+maintainers:
+  - name: arkadym
+    email: arkadym@gmail.com

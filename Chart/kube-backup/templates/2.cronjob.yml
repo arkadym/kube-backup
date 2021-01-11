@@ -1,0 +1,129 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "backup.fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+#  schedule: "*/5 * * * *" # every 5 min (0, 5, 10, etc of hour)
+  schedule: {{ .Values.config.cronSchedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.config.successfulJobsHistoryLimit | default "1" }}
+  failedJobsHistoryLimit: {{ .Values.config.failedJobsHistoryLimit | default "1" }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.config.backoffLimit | default "0" }}
+      template:
+        metadata:
+          labels:
+            app: {{ template "backup.fullname" . }}
+        spec:
+          restartPolicy: Never
+{{- if .Values.image.pullSecret }}
+          imagePullSecrets:
+            - name: {{ .Values.image.pullSecret }}
+{{- end }}
+          containers:
+            - name: backup
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+{{- if .Values.image.pullPolicy }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- end }}
+{{- if .Values.resources }}
+              resources:
+{{ toYaml .Values.resources | indent 16 }}
+{{- end }}
+              env:
+                - name: BACKUP_MODE
+                  value: {{ .Values.config.mode | quote }}
+{{- if .Values.config.backupDays }}                  
+                - name: BACKUP_DAYS
+                  value: {{ .Values.config.backupDays | quote }}
+{{- end }}
+{{- if .Values.storage.s3 }}
+                - name: S3_BUCKET_NAME
+                  value: {{ .Values.storage.s3.bucketName | quote }}
+{{- if .Values.storage.s3.regionName }}
+                - name: S3_REGION_NAME
+                  value: {{ .Values.storage.s3.regionName | quote }}
+{{- end }}                  
+{{- end }}
+{{- if .Values.storage.azure }}
+                - name: AZ_CONTAINER_NAME
+                  value: {{ .Values.storage.azure.containerName | quote }}
+{{- if .Values.storage.azure.prefix }}
+                - name: AZ_PREFIX
+                  value: {{ .Values.storage.azure.prefix | quote }}
+{{- end }}
+{{- end }}
+{{- if .Values.folders }}
+                - name: BACKUP_PATHS
+                  value: "{{ range $index, $folder := .Values.folders }}{{ if ne $index 0 }} {{ end }}{{ $folder.path }}{{ end }}"
+                - name: EXCLUDE_PATHS
+                  value: "{{ range $index, $folder := .Values.folders }}{{ if ne $index 0 }} {{ end }}{{ if $folder.exclude }}{{ range $exIndex, $exPath := $folder.exclude }}{{ if ne $exIndex 0 }}:{{ end }}{{ $exPath }}{{ end }}{{ else }}-{{ end }}{{ end }}"
+{{- end }}
+{{- if .Values.database.mysql }}
+                - name: MYSQL_SERVER
+                  value: {{ .Values.database.mysql.server }}
+                - name: MYSQL_DBS
+                  value: {{ .Values.database.mysql.databases }}
+                - name: MYSQL_USER
+{{- if .Values.database.mysql.username }}
+                  value: {{ .Values.database.mysql.username }}
+{{- else if .Values.database.mysql.secret }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.database.mysql.secret.name }}
+                      key: {{ .Values.database.mysql.secret.userKey }}
+{{- end }}
+                - name: MYSQL_PSWD
+{{- if .Values.database.mysql.password }}
+                  value: {{ .Values.database.mysql.password }}
+{{- else if .Values.database.mysql.secret }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.database.mysql.secret.name }}
+                      key: {{ .Values.database.mysql.secret.passwordKey }}
+{{- end }}
+{{- end }}
+{{- if or .Values.storage.s3 .Values.storage.azure .Values.folders }}
+              volumeMounts:
+{{- if or .Values.storage.s3 .Values.storage.azure }}
+                - name: backup-secrets
+                  mountPath: /etc/backup-secrets
+                  readOnly: true
+{{- end }}
+{{- if .Values.folders }}
+{{- range $index, $folder := .Values.folders }}
+{{- if $folder.volume }}
+                - name: {{ $folder.name }}
+                  mountPath: {{ $folder.path }}
+{{- if $folder.subPath }}
+                  subPath: {{ $folder.subPath }}
+{{- end }}
+{{- if eq "backup" $.Values.config.mode }}
+                  readOnly: true
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if or .Values.storage.s3 .Values.storage.azure .Values.folders }}
+          volumes:
+{{- if or .Values.storage.s3 .Values.storage.azure }}
+            - name: backup-secrets
+              secret:
+                secretName: {{ template "backup.fullname" . }}
+{{- end }}
+{{- if .Values.folders }}
+{{- range $index, $folder := .Values.folders }}
+{{- if $folder.volume }}
+            - name: {{ $folder.name | quote }}
+{{ toYaml $folder.volume | indent 14 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,1 @@
+helm delete --namespace <namespace> <release-name>
