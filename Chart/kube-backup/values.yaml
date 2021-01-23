@@ -12,7 +12,7 @@ replicas: 1
 ##
 image:
   repository: "arkadym/kube-backup"
-  tag: "1.22"
+  tag: "1.26"
 #    pullPolicy: "Always"
 #    pullSecret: "secret-name"
 

@@ -16,19 +16,29 @@ RUN apt-get update \
     ca-certificates \
     curl \
     apt-transport-https \
-    lsb-release gnupg \
+    lsb-release \
+    gnupg \
+    unzip \
  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
-RUN ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive \
- && AZ_REPO=$(lsb_release -cs) \
- && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list \
- && AZ_VER=$(lsb_release -rs) \
- && echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/$AZ_VER/prod/ $AZ_REPO main" | tee /etc/apt/sources.list.d/mssql-prod.list 
+RUN AZ_REPO=$(lsb_release -cs) \
+ && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
+
+# RUN ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive \
+#  && AZ_VER=$(lsb_release -rs) \
+#  && echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/$AZ_VER/prod/ $AZ_REPO main" | tee /etc/apt/sources.list.d/mssql-prod.list 
+# apt-get install -y mssql-tools
 
 RUN apt-get update \
- && apt-get install -y azure-cli mssql-tools \
+ && apt-get install -y azure-cli \
  && rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://go.microsoft.com/fwlink/?linkid=2143544&clcid=0x409 -o /tmp/sqlpackage.zip \
+ && mkdir -p /home/$APP_USER/sqlpackage \
+ && unzip /tmp/sqlpackage.zip -d /home/$APP_USER/sqlpackage \
+ && chmod a+x /home/$APP_USER/sqlpackage/sqlpackage \
+ && rm -f /tmp/sqlpackage.zip
 
 RUN curl -L https://aka.ms/downloadazcopy-v10-linux -o /tmp/azcopy-v10-linux.tar \
  && tar -xvf /tmp/azcopy-v10-linux.tar \

@@ -22,8 +22,6 @@ if [[ ! -z ${MSSQL_DBS} ]]; then
     echo "ERROR: Please setup MSSQL_USER and MSSQL_PSWD variables, or map /etc/backup-secrets/database-password file"
     exit 1
   fi
-
-  SQLCMDPASSWORD=$MSSQL_PSWD
   
   SERVERNAME=$(hostname)
   if [[ -z ${MSSQL_SERVER} ]]; then
@@ -46,8 +44,7 @@ if [[ ! -z ${MSSQL_DBS} ]]; then
   echo "Starting backup databases..."
   for MSSQL_DB in ${MSSQL_DBS}; do
     echo " - ${MSSQL_DB}..."
-    sqlcmd -S ${MSSQL_SERVER} -U ${MSSQL_USER} -Q "BACKUP DATABASE [${MSSQL_DB}] TO DISK = N'${ARCHIVE_PATH}/${SERVERNAME}-${MSSQL_DB}-${DT}-data.bak' WITH NOFORMAT, NOINIT, NAME = '${MSSQL_DB}-full', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
-    gzip ${ARCHIVE_PATH}/${SERVERNAME}-${MSSQL_DB}-${DT}-data.bak
+    ./sqlpackage/sqlpackage /a:export /sdn:${MSSQL_DB} /ssn:${MSSQL_SERVER} /su:${MSSQL_USER} /sp:${MSSQL_PSWD} /tf:${ARCHIVE_PATH}/${SERVERNAME}-${MSSQL_DB}-${DT}.bacpac
   done
   echo "Finished backup databases."
 fi
