@@ -89,6 +89,30 @@ spec:
                       key: {{ .Values.database.mysql.secret.passwordKey }}
 {{- end }}
 {{- end }}
+{{- if .Values.database.mssql }}
+                - name: MSSQL_SERVER
+                  value: {{ .Values.database.mssql.server }}
+                - name: MSSQL_DBS
+                  value: {{ .Values.database.mssql.databases }}
+                - name: MSSQL_USER
+{{- if .Values.database.mssql.username }}
+                  value: {{ .Values.database.mssql.username }}
+{{- else if .Values.database.mssql.secret }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.database.mssql.secret.name }}
+                      key: {{ .Values.database.mssql.secret.userKey }}
+{{- end }}
+                - name: MSSQL_PSWD
+{{- if .Values.database.mssql.password }}
+                  value: {{ .Values.database.mssql.password }}
+{{- else if .Values.database.mssql.secret }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.database.mssql.secret.name }}
+                      key: {{ .Values.database.mssql.secret.passwordKey }}
+{{- end }}
+{{- end }}
 {{- if or .Values.storage.s3 .Values.storage.azure .Values.folders }}
               volumeMounts:
 {{- if or .Values.storage.s3 .Values.storage.azure }}

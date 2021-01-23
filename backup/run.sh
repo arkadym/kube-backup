@@ -33,6 +33,8 @@ echo " RSync path = ${RSYNC_ARCHIVE_PATH}"
 if [[ ${BACKUP_MODE} == "backup" ]]; then
   echo " +++ backup MySQL DB"
   ./backup-mysql.sh
+  echo " +++ backup MSSQL DB"
+  ./backup-mssql.sh
   echo " +++ backup Files"
   ./backup-files.sh
 

@@ -26,5 +26,5 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 
 {{- define "backup.fullname" -}}
 {{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s" (include "fullname" .) "cronjob" | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s-%s" (include "fullname" .) $name "cronjob" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

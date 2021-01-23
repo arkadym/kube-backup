@@ -53,6 +53,15 @@ database:
 #      name: ""
 #      userKey: ""
 #      passwordKey: ""
+  mssql: {}
+#    server: ""
+#    databases: "" # space separated list of DBs to backup
+#    username: ""
+#    password: ""
+#    secret: 
+#      name: ""
+#      userKey: ""
+#      passwordKey: ""
 
 folders: {}
 #  - name: etc-nginx

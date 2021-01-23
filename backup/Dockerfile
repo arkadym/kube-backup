@@ -20,11 +20,14 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
-RUN AZ_REPO=$(lsb_release -cs) \
- && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
+RUN ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive \
+ && AZ_REPO=$(lsb_release -cs) \
+ && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list \
+ && AZ_VER=$(lsb_release -rs) \
+ && echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/$AZ_VER/prod/ $AZ_REPO main" | tee /etc/apt/sources.list.d/mssql-prod.list 
 
 RUN apt-get update \
- && apt-get install -y azure-cli \
+ && apt-get install -y azure-cli mssql-tools \
  && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L https://aka.ms/downloadazcopy-v10-linux -o /tmp/azcopy-v10-linux.tar \
