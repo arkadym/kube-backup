@@ -34,7 +34,7 @@ RUN apt-get update \
  && apt-get install -y azure-cli \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://go.microsoft.com/fwlink/?linkid=2143544&clcid=0x409 -o /tmp/sqlpackage.zip \
+RUN curl -L https://go.microsoft.com/fwlink/?linkid=2143497 -o /tmp/sqlpackage.zip \
  && mkdir -p /home/$APP_USER/sqlpackage \
  && unzip /tmp/sqlpackage.zip -d /home/$APP_USER/sqlpackage \
  && chmod a+x /home/$APP_USER/sqlpackage/sqlpackage \
