@@ -4,6 +4,7 @@ set -e
 BACKUP_PATH=${BACKUP_PATHS:-}
 S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
 S3_REGION_NAME=${S3_REGION_NAME:-}
+S3_ENDPOINT=${S3_ENDPOINT:-}
 
 if [[ -z ${BACKUP_PATH} ]]; then
   ERROR="Please configure backup path."
@@ -45,6 +46,12 @@ else
 fi
 echo "OPT_DELETE=$OPT_DELETE"
 
+OPT_ENDPOINT=
+if [[ ! -z ${S3_ENDPOINT} ]]; then
+  OPT_ENDPOINT="--endpoint-url=${S3_ENDPOINT}"
+fi
+echo "OPT_ENDPOINT=$OPT_ENDPOINT"
+
 echo "Syncing..."
-aws s3 sync ${BACKUP_PATH} s3://${S3_BUCKET_NAME} --exact-timestamps $OPT_DELETE
+aws s3 $OPT_ENDPOINT sync ${BACKUP_PATH} s3://${S3_BUCKET_NAME} --exact-timestamps $OPT_DELETE
 echo "Synced."

@@ -49,7 +49,11 @@ spec:
 {{- if .Values.storage.s3.regionName }}
                 - name: S3_REGION_NAME
                   value: {{ .Values.storage.s3.regionName | quote }}
-{{- end }}                  
+{{- end }}
+{{- if .Values.storage.s3.endpoint }}
+                - name: S3_ENDPOINT
+                  value: {{ .Values.storage.s3.endpoint | quote }}
+{{- end }}
 {{- end }}
 {{- if .Values.storage.azure }}
                 - name: AZ_CONTAINER_NAME

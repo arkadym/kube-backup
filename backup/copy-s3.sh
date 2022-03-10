@@ -3,6 +3,7 @@ set -e
 
 S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
 S3_REGION_NAME=${S3_REGION_NAME:-}
+S3_ENDPOINT=${S3_ENDPOINT:-}
 
 export AWS_ACCESS_KEY_ID=$(cat /etc/backup-secrets/s3-cloud-storage-key | cut -d ":" -f1)
 export AWS_SECRET_ACCESS_KEY=$(cat /etc/backup-secrets/s3-cloud-storage-key | cut -d ":" -f2)
@@ -23,12 +24,18 @@ if [[ ! -z ${ERROR} ]]; then
   exit 1
 fi
 
+OPT_ENDPOINT=
+if [[ ! -z ${S3_ENDPOINT} ]]; then
+  OPT_ENDPOINT="--endpoint-url=${S3_ENDPOINT}"
+fi
+echo "OPT_ENDPOINT=$OPT_ENDPOINT"
+
 echo "Syncing..."
-aws s3 cp ${ARCHIVE_PATH} s3://${S3_BUCKET_NAME} --recursive
+aws s3 $OPT_ENDPOINT cp ${ARCHIVE_PATH} s3://${S3_BUCKET_NAME} --recursive
 echo "Synced."
 
 echo "Listing..."
-aws s3 ls s3://${S3_BUCKET_NAME}
+aws s3 $OPT_ENDPOINT ls s3://${S3_BUCKET_NAME}
 echo "Listed."
 
 LMT=$(date -d "-$[${BACKUP_DAYS}-1] days" +%Y-%m-%d | sed 's/\s$//')
@@ -46,5 +53,5 @@ echo "Deleting backups with LastModified < $LMT..."
 FILES_TO_DELETE=$(aws s3api list-objects --bucket ${S3_BUCKET_NAME} --query "Contents[?LastModified < '$LMT'].Key" --output text)
 for FILE_TO_DELETE in $FILES_TO_DELETE; do
   echo " - Deleting ${FILE_TO_DELETE}..."
-  aws s3api delete-object --bucket ${S3_BUCKET_NAME} --key ${FILE_TO_DELETE} --output text
+  aws s3api $OPT_ENDPOINT delete-object --bucket ${S3_BUCKET_NAME} --key ${FILE_TO_DELETE} --output text
 done
