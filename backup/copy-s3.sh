@@ -42,7 +42,7 @@ LMT=$(date -d "-$[${BACKUP_DAYS}-1] days" +%Y-%m-%d | sed 's/\s$//')
 echo "Keep only backup after $LMT..."
 
 echo "Counting .sha256 backups with LastModified >= $LMT..."
-HASH_COUNT=$(aws s3api list-objects --bucket ${S3_BUCKET_NAME} --query "Contents[?LastModified >= '$LMT' && contains(Key,'.sha256')]" --output text | wc -l)
+HASH_COUNT=$(aws s3api $OPT_ENDPOINT list-objects --bucket ${S3_BUCKET_NAME} --query "Contents[?LastModified >= '$LMT' && contains(Key,'.sha256')]" --output text | wc -l)
 
 if [[ ${HASH_COUNT} -lt ${BACKUP_DAYS} ]]; then
   echo "Found < ${BACKUP_DAYS} hash files, nothing to delete yet, will delete once ${BACKUP_DAYS} valid backups appear."
