@@ -50,7 +50,7 @@ if [[ ${HASH_COUNT} -lt ${BACKUP_DAYS} ]]; then
 fi
 
 echo "Deleting backups with LastModified < $LMT..."
-FILES_TO_DELETE=$(aws s3api list-objects --bucket ${S3_BUCKET_NAME} --query "Contents[?LastModified < '$LMT'].Key" --output text)
+FILES_TO_DELETE=$(aws s3api $OPT_ENDPOINT list-objects --bucket ${S3_BUCKET_NAME} --query "Contents[?LastModified < '$LMT'].Key" --output text)
 for FILE_TO_DELETE in $FILES_TO_DELETE; do
   echo " - Deleting ${FILE_TO_DELETE}..."
   aws s3api $OPT_ENDPOINT delete-object --bucket ${S3_BUCKET_NAME} --key ${FILE_TO_DELETE} --output text
