@@ -56,7 +56,7 @@ RUN REL_NO=$(lsb_release -rs) \
 RUN pwsh -Command "Install-Module Az -Force"
 
 COPY run.sh backup-files.sh backup-mysql.sh backup-pgsql.sh backup-mssql.sh copy-azure.sh copy-local.sh copy-rsync.sh copy-s3.sh sync-azure.sh sync-azure.ps1 sync-s3.sh sync-rsync.sh /home/$APP_USER/
-RUN cd /home/$APP_USER && chmod 755 run.sh backup-files.sh backup-mysql.sh backup-mssql.sh copy-azure.sh copy-local.sh copy-rsync.sh copy-s3.sh sync-azure.sh sync-s3.sh sync-rsync.sh
+RUN cd /home/$APP_USER && chmod 755 run.sh backup-files.sh backup-mysql.sh backup-pgsql.sh backup-mssql.sh copy-azure.sh copy-local.sh copy-rsync.sh copy-s3.sh sync-azure.sh sync-s3.sh sync-rsync.sh
 
 WORKDIR /home/$APP_USER/
 CMD ["/home/backup-usr/run.sh"]
