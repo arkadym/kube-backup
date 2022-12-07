@@ -42,7 +42,8 @@ if [[ ! -z ${PGSQL_DBS} ]]; then
   fi
 
   if [[ ! -z ${PGSQL_PSWD} ]]; then
-    PGPASSWORD=${PGSQL_PSWD}
+    echo " - Password specified, setting..."
+    PGPASSWORD="${PGSQL_PSWD}"
   fi 
 
   echo "Starting backup databases..."
