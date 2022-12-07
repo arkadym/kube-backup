@@ -43,10 +43,7 @@ if [[ ! -z ${PGSQL_DBS} ]]; then
 
   if [[ ! -z ${PGSQL_PSWD} ]]; then
     echo " - Password specified, setting..."
-    PGPASSWORD="${PGSQL_PSWD}"
-cat > .pgpass << EOF
-*:*:*:*:${MYSQL_PSWD}
-EOF
+    export PGPASSWORD=${PGSQL_PSWD}
   fi 
 
   echo "Starting backup databases..."
