@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV TZ=Europe/Moscow
 ENV APP_USER=backup-usr
 
@@ -13,6 +13,7 @@ RUN apt-get update \
     awscli \
     rsync \
     mariadb-client \
+    postgresql-client \
     ca-certificates \
     curl \
     apt-transport-https \
