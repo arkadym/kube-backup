@@ -35,6 +35,8 @@ if [[ ${BACKUP_MODE} == "backup" ]]; then
   ./backup-mysql.sh
   echo " +++ backup MSSQL DB"
   ./backup-mssql.sh
+  echo " +++ backup PGSQL DB"
+  ./backup-pgsql.sh
   echo " +++ backup Files"
   ./backup-files.sh
 
