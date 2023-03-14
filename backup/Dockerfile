@@ -13,7 +13,6 @@ RUN apt-get update \
     awscli \
     rsync \
     mariadb-client \
-    postgresql-client \
     ca-certificates \
     curl \
     apt-transport-https \
@@ -21,6 +20,7 @@ RUN apt-get update \
     gnupg \
     unzip \
  && rm -rf /var/lib/apt/lists/*
+#    postgresql-client \
 
 RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 RUN AZ_REPO=$(lsb_release -cs) \
@@ -46,6 +46,12 @@ RUN curl -L https://aka.ms/downloadazcopy-v10-linux -o /tmp/azcopy-v10-linux.tar
  && cp ./azcopy_linux_amd64_*/azcopy /usr/bin/ \
  && rm -rf ./azcopy_linux_amd64_* \
  && rm -f /tmp/azcopy-v10-linux.tar
+
+RUN curl -fSsL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /usr/share/keyrings/postgresql.gpg 
+RUN echo deb [arch=amd64,arm64,ppc64el signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main | tee -a /etc/apt/sources.list.d/postgresql.list
+RUN apt-get update \
+ && apt-get install -y postgresql-client-15 \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN REL_NO=$(lsb_release -rs) \
  && curl -L https://packages.microsoft.com/config/ubuntu/$REL_NO/prod.list | tee /etc/apt/sources.list.d/microsoft.list \
